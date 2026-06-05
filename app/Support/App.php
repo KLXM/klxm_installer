@@ -56,6 +56,13 @@ final class App
             }
 
             if (($user['role'] ?? '') === 'admin') {
+                if (!$this->isAdminIpAllowed()) {
+                    $this->audit->log((int) ($user['id'] ?? 0), 'admin_ip_blocked', ['ip' => $this->getClientIp()]);
+                    $this->auth->logout();
+                    View::flash('error', 'Admin-Zugriff von dieser IP-Adresse ist nicht erlaubt.');
+                    Response::redirect('?route=login');
+                }
+
                 $this->handleAdmin($user, $route);
                 return;
             }
@@ -556,5 +563,36 @@ final class App
         ]);
 
         return is_array($stmt->fetch());
+    }
+
+    private function isAdminIpAllowed(): bool
+    {
+        $allowlist = Config::get('security.admin_ip_allowlist', []);
+        if (!is_array($allowlist) || $allowlist === []) {
+            return true;
+        }
+
+        $clientIp = $this->getClientIp();
+        if ($clientIp === '') {
+            return false;
+        }
+
+        foreach ($allowlist as $ip) {
+            if (!is_string($ip)) {
+                continue;
+            }
+
+            if (trim($ip) === $clientIp) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function getClientIp(): string
+    {
+        $ipAddress = $_SERVER['REMOTE_ADDR'] ?? '';
+        return is_string($ipAddress) ? trim($ipAddress) : '';
     }
 }

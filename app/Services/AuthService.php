@@ -68,6 +68,7 @@ final class AuthService
 
         $_SESSION['user_id'] = (int) $row['id'];
         $_SESSION['login_at'] = time();
+        $_SESSION['login_last_activity'] = time();
         $_SESSION['login_expires'] = time() + ((int) Config::get('security.session_ttl_minutes', 120) * 60);
         session_regenerate_id(true);
 
@@ -76,10 +77,26 @@ final class AuthService
 
     public function checkSessionFresh(): void
     {
-        $expires = $_SESSION['login_expires'] ?? null;
-        if ($expires !== null && time() > (int) $expires) {
-            $this->logout();
+        if (!isset($_SESSION['user_id'])) {
+            return;
         }
+
+        $now = time();
+        $idleTimeout = max(60, ((int) Config::get('security.session_idle_timeout_minutes', 30)) * 60);
+
+        $lastActivity = $_SESSION['login_last_activity'] ?? null;
+        if ($lastActivity !== null && ($now - (int) $lastActivity) > $idleTimeout) {
+            $this->logout();
+            return;
+        }
+
+        $expires = $_SESSION['login_expires'] ?? null;
+        if ($expires !== null && $now > (int) $expires) {
+            $this->logout();
+            return;
+        }
+
+        $_SESSION['login_last_activity'] = $now;
     }
 
     public function logout(): void
@@ -90,7 +107,10 @@ final class AuthService
             setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], (bool) $params['secure'], (bool) $params['httponly']);
         }
         session_destroy();
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        session_regenerate_id(true);
     }
 
     public function requireRole(string $role): bool
