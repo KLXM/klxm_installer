@@ -14,6 +14,24 @@
         :root {
             --brand-accent: <?= htmlspecialchars((string) ($branding['brand_primary_color'] ?? '#0f766e'), ENT_QUOTES, 'UTF-8') ?>;
             --brand-accent-2: <?= htmlspecialchars((string) ($branding['brand_accent_color'] ?? '#0b5f59'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-bg: <?= htmlspecialchars((string) ($branding['theme_light_bg'] ?? '#f3f6fb'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-panel: <?= htmlspecialchars((string) ($branding['theme_light_panel'] ?? '#ffffff'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-panel-2: <?= htmlspecialchars((string) ($branding['theme_light_panel_2'] ?? '#f8fbff'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-text: <?= htmlspecialchars((string) ($branding['theme_light_text'] ?? '#12202f'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-muted: <?= htmlspecialchars((string) ($branding['theme_light_muted'] ?? '#4b6178'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-placeholder: <?= htmlspecialchars((string) ($branding['theme_light_placeholder'] ?? '#6f8398'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-line: <?= htmlspecialchars((string) ($branding['theme_light_line'] ?? '#d0dbe8'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-glow-a: <?= htmlspecialchars((string) ($branding['theme_light_glow_a'] ?? '#14b8a6'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-light-glow-b: <?= htmlspecialchars((string) ($branding['theme_light_glow_b'] ?? '#155e75'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-bg: <?= htmlspecialchars((string) ($branding['theme_dark_bg'] ?? '#0f1012'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-panel: <?= htmlspecialchars((string) ($branding['theme_dark_panel'] ?? '#0f1f2f'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-panel-2: <?= htmlspecialchars((string) ($branding['theme_dark_panel_2'] ?? '#13263a'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-text: <?= htmlspecialchars((string) ($branding['theme_dark_text'] ?? '#e6f0f8'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-muted: <?= htmlspecialchars((string) ($branding['theme_dark_muted'] ?? '#9bb3ca'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-placeholder: <?= htmlspecialchars((string) ($branding['theme_dark_placeholder'] ?? '#b8cadd'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-line: <?= htmlspecialchars((string) ($branding['theme_dark_line'] ?? '#29445e'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-glow-a: <?= htmlspecialchars((string) ($branding['theme_dark_glow_a'] ?? '#ffffff'), ENT_QUOTES, 'UTF-8') ?>;
+            --theme-dark-glow-b: <?= htmlspecialchars((string) ($branding['theme_dark_glow_b'] ?? '#737980'), ENT_QUOTES, 'UTF-8') ?>;
         }
     </style>
 </head>

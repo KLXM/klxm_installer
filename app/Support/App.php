@@ -394,10 +394,10 @@ final class App
     {
         $baseUrl = rtrim((string) Config::get('app.base_url', ''), '/');
         if ($baseUrl === '') {
-            return 'index.php?route=login';
+            return '/installer';
         }
 
-        return $baseUrl . '/index.php?route=login';
+        return $baseUrl;
     }
 
     private function handleCustomer(array $user): void
