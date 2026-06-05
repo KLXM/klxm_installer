@@ -488,11 +488,15 @@ final class App
         }
 
         if ($route === 'api/v1/versions') {
-            $owner = (string) ($_GET['owner'] ?? '');
-            $repo = (string) ($_GET['repo'] ?? '');
+            $repoContext = $this->resolveRepoContext();
+            $owner = $repoContext['owner'];
+            $repo = $repoContext['repo'];
             $allowed = $this->isRepoAllowed($userId, $owner, $repo);
             if (!$allowed) {
-                Response::json(['error' => 'forbidden'], 403);
+                Response::json([
+                    'error' => 'forbidden',
+                    'debug' => $this->buildForbiddenDebug($userId, $owner, $repo),
+                ], 403);
             }
 
             $ownerToken = $this->github->getOwnerToken($owner);
@@ -515,16 +519,43 @@ final class App
         }
 
         if ($route === 'api/v1/download') {
-            $owner = (string) ($_GET['owner'] ?? '');
-            $repo = (string) ($_GET['repo'] ?? '');
-            $ref = (string) ($_GET['ref'] ?? '');
+            $repoContext = $this->resolveRepoContext();
+            $owner = $repoContext['owner'];
+            $repo = $repoContext['repo'];
+            $ref = trim((string) ($_GET['ref'] ?? ''));
+            if ($ref === '') {
+                $ref = trim((string) ($_SERVER['HTTP_X_REPO_REF'] ?? ''));
+            }
+            if ($ref === '') {
+                $routeParam = (string) ($_GET['route'] ?? '');
+                $parts = explode('/', trim($routeParam, '/'));
+                if (count($parts) >= 6) {
+                    $ref = trim((string) ($parts[5] ?? ''));
+                }
+            }
 
             if ($owner === '' || $repo === '' || $ref === '') {
-                Response::json(['error' => 'missing_params'], 422);
+                Response::json([
+                    'error' => 'missing_params',
+                    'debug' => [
+                        'owner' => $owner,
+                        'repo' => $repo,
+                        'ref' => $ref,
+                        'route_param' => (string) ($_GET['route'] ?? ''),
+                        'query_string' => (string) ($_SERVER['QUERY_STRING'] ?? ''),
+                        'request_uri' => (string) ($_SERVER['REQUEST_URI'] ?? ''),
+                        'header_x_repo_owner' => (string) ($_SERVER['HTTP_X_REPO_OWNER'] ?? ''),
+                        'header_x_repo_name' => (string) ($_SERVER['HTTP_X_REPO_NAME'] ?? ''),
+                        'header_x_repo_ref' => (string) ($_SERVER['HTTP_X_REPO_REF'] ?? ''),
+                    ],
+                ], 422);
             }
 
             if (!$this->isRepoAllowed($userId, $owner, $repo)) {
-                Response::json(['error' => 'forbidden'], 403);
+                Response::json([
+                    'error' => 'forbidden',
+                    'debug' => $this->buildForbiddenDebug($userId, $owner, $repo),
+                ], 403);
             }
 
             $ownerToken = $this->github->getOwnerToken($owner);
@@ -539,6 +570,64 @@ final class App
         }
 
         Response::json(['error' => 'not_found'], 404);
+    }
+
+    /**
+     * @return array{owner:string,repo:string}
+     */
+    private function resolveRepoContext(): array
+    {
+        $owner = trim((string) ($_GET['owner'] ?? ''));
+        $repo = trim((string) ($_GET['repo'] ?? ''));
+
+        if (($owner === '' || $repo === '') && function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (is_array($headers)) {
+                if ($owner === '') {
+                    $owner = trim((string) ($headers['X-Repo-Owner'] ?? $headers['x-repo-owner'] ?? ''));
+                }
+                if ($repo === '') {
+                    $repo = trim((string) ($headers['X-Repo-Name'] ?? $headers['x-repo-name'] ?? ''));
+                }
+            }
+        }
+
+        if ($owner === '' || $repo === '') {
+            $route = (string) ($_GET['route'] ?? '');
+            $parts = explode('/', trim($route, '/'));
+            if (count($parts) >= 5) {
+                if ($owner === '') {
+                    $owner = trim((string) ($parts[3] ?? ''));
+                }
+                if ($repo === '') {
+                    $repo = trim((string) ($parts[4] ?? ''));
+                }
+            }
+        }
+
+        return [
+            'owner' => $owner,
+            'repo' => $repo,
+        ];
+    }
+
+    /**
+     * @return array<string, int|string>
+     */
+    private function buildForbiddenDebug(int $userId, string $owner, string $repo): array
+    {
+        return [
+            'user_id' => $userId,
+            'owner' => $owner,
+            'repo' => $repo,
+            'owner_trimmed' => trim($owner),
+            'repo_trimmed' => trim($repo),
+            'route_param' => (string) ($_GET['route'] ?? ''),
+            'query_string' => (string) ($_SERVER['QUERY_STRING'] ?? ''),
+            'request_uri' => (string) ($_SERVER['REQUEST_URI'] ?? ''),
+            'header_x_repo_owner' => (string) ($_SERVER['HTTP_X_REPO_OWNER'] ?? ''),
+            'header_x_repo_name' => (string) ($_SERVER['HTTP_X_REPO_NAME'] ?? ''),
+        ];
     }
 
     private function extractBearerToken(): ?string
@@ -574,7 +663,7 @@ final class App
     private function isRepoAllowed(int $userId, string $owner, string $repo): bool
     {
         $pdo = Database::pdo();
-        $stmt = $pdo->prepare('SELECT r.id FROM repositories r INNER JOIN repository_access ra ON ra.repository_id = r.id WHERE ra.user_id = :user_id AND r.owner_name = :owner_name AND r.repo_name = :repo_name AND r.is_active = 1 AND r.is_private = 1 LIMIT 1');
+        $stmt = $pdo->prepare('SELECT r.id FROM repositories r INNER JOIN repository_access ra ON ra.repository_id = r.id WHERE ra.user_id = :user_id AND LOWER(TRIM(r.owner_name)) = LOWER(TRIM(:owner_name)) AND LOWER(TRIM(r.repo_name)) = LOWER(TRIM(:repo_name)) AND r.is_active = 1 AND r.is_private = 1 LIMIT 1');
         $stmt->execute([
             ':user_id' => $userId,
             ':owner_name' => $owner,
