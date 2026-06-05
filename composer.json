@@ -1,0 +1,15 @@
+{
+  "name": "klxm/installer-proxy",
+  "description": "KLXM Installer Proxy und Verwaltungsoberflaeche fuer private REDAXO Addons",
+  "type": "project",
+  "require": {
+    "php": "^8.1",
+    "ext-pdo": "*",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Klxm\\Installer\\": "app/"
+    }
+  }
+}
