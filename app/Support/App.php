@@ -543,8 +543,27 @@ final class App
 
     private function extractBearerToken(): ?string
     {
-        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-        if (!is_string($header) || !str_starts_with($header, 'Bearer ')) {
+        $headerCandidates = [
+            $_SERVER['HTTP_AUTHORIZATION'] ?? null,
+            $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null,
+        ];
+
+        if (function_exists('getallheaders')) {
+            $headers = getallheaders();
+            if (is_array($headers)) {
+                $headerCandidates[] = $headers['Authorization'] ?? $headers['authorization'] ?? null;
+            }
+        }
+
+        $header = '';
+        foreach ($headerCandidates as $candidate) {
+            if (is_string($candidate) && $candidate !== '') {
+                $header = $candidate;
+                break;
+            }
+        }
+
+        if ($header === '' || !str_starts_with($header, 'Bearer ')) {
             return null;
         }
 
