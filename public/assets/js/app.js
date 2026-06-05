@@ -126,7 +126,41 @@
     });
   }
 
+  function initCopyButtons() {
+    var buttons = document.querySelectorAll('[data-copy-target]');
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var targetId = button.getAttribute('data-copy-target');
+        if (!targetId) {
+          return;
+        }
+
+        var target = document.getElementById(targetId);
+        if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
+          return;
+        }
+
+        target.focus();
+        target.select();
+
+        try {
+          var ok = document.execCommand('copy');
+          if (ok) {
+            var oldText = button.textContent;
+            button.textContent = 'Kopiert';
+            window.setTimeout(function () {
+              button.textContent = oldText;
+            }, 1500);
+          }
+        } catch (e) {
+          // no-op
+        }
+      });
+    });
+  }
+
   initMultiSelects();
+  initCopyButtons();
   registerPasteSupport();
 
   var createUserToggle = document.querySelector('[data-toggle-create-user]');

@@ -225,6 +225,14 @@ final class App
                     ]);
                     $newUserId = (int) $pdo->lastInsertId();
                     $plainToken = $this->tokens->createUserToken($newUserId, 'Ersttoken');
+                    $loginUrl = $this->buildLoginUrl();
+                    $_SESSION['_customer_handover'] = [
+                        'display_name' => $name,
+                        'email' => $email,
+                        'password' => $password,
+                        'login_url' => $loginUrl,
+                        'api_token' => $plainToken,
+                    ];
                     $this->audit->log((int) $user['id'], 'customer_created', ['customer_id' => $newUserId]);
                     View::flash('success', 'Kunde erstellt. Initialer Token: ' . $plainToken);
                 }
@@ -348,6 +356,13 @@ final class App
             $reposByOwner[$owner][] = $repo;
         }
 
+        $handover = $_SESSION['_customer_handover'] ?? null;
+        if (is_array($handover)) {
+            unset($_SESSION['_customer_handover']);
+        } else {
+            $handover = null;
+        }
+
         if ($activeRoute === 'settings') {
             View::render('admin/settings', [
                 'title' => 'Settings',
@@ -371,7 +386,18 @@ final class App
             'customers' => $customers,
             'reposByOwner' => $reposByOwner,
             'userAccessRepoIds' => $userAccessRepoIds,
+            'handover' => $handover,
         ]);
+    }
+
+    private function buildLoginUrl(): string
+    {
+        $baseUrl = rtrim((string) Config::get('app.base_url', ''), '/');
+        if ($baseUrl === '') {
+            return 'index.php?route=login';
+        }
+
+        return $baseUrl . '/index.php?route=login';
     }
 
     private function handleCustomer(array $user): void

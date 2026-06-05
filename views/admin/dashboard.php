@@ -1,6 +1,24 @@
 <section class="grid two-col fade-in">
     <article class="panel">
         <h2>Kunden und Sponsoren</h2>
+
+        <?php if (isset($handover) && is_array($handover)): ?>
+            <?php
+            $handoverText =
+                "Zugang fuer: " . (string) ($handover['display_name'] ?? '') . "\n"
+                . "Login URL: " . (string) ($handover['login_url'] ?? '') . "\n"
+                . "E-Mail: " . (string) ($handover['email'] ?? '') . "\n"
+                . "Passwort: " . (string) ($handover['password'] ?? '') . "\n"
+                . "API-Token: " . (string) ($handover['api_token'] ?? '');
+            ?>
+            <div class="handover-box">
+                <h3>Übergabe für Zwischenablage</h3>
+                <p class="muted">Diesen Block direkt an den neuen Benutzer senden.</p>
+                <textarea id="handoverText" rows="7" readonly><?= htmlspecialchars($handoverText, ENT_QUOTES, 'UTF-8') ?></textarea>
+                <button type="button" class="ghost-btn" data-copy-target="handoverText">In Zwischenablage kopieren</button>
+            </div>
+        <?php endif; ?>
+
         <div class="create-user-wrap">
             <button type="button" class="btn plus-btn" data-toggle-create-user aria-expanded="false" aria-controls="createUserForm">
                 + Neuer Kunde / Sponsor

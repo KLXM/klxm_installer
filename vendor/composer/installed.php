@@ -3,7 +3,7 @@
         'name' => 'klxm/installer-proxy',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7ed945941d7685adf6660a44679e50c60e3288d0',
+        'reference' => '3790da6868c0ccc3e1a2f07c7bba6c39287a8303',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'klxm/installer-proxy' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7ed945941d7685adf6660a44679e50c60e3288d0',
+            'reference' => '3790da6868c0ccc3e1a2f07c7bba6c39287a8303',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
