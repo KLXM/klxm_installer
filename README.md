@@ -32,6 +32,58 @@ Fuer die Installation und Updates im REDAXO-System wird zusaetzlich das AddOn `c
 7. Kunden/Sponsoren anlegen und pro Benutzer die erlaubten Repositories freigeben.
 8. Im Ziel-REDAXO das AddOn `client_installer` installieren und mit diesem Proxy verbinden.
 
+## Docker Dev Setup
+
+Fuer lokale Entwicklung ist ein Docker-Setup enthalten (`docker-compose.yml`).
+
+### Voraussetzungen
+
+- Docker Desktop oder Docker Engine + Compose
+
+### Schnellstart
+
+1. In den Projektordner wechseln.
+2. Container starten:
+
+	```bash
+	docker compose up -d --build
+	```
+
+3. Setup im Browser aufrufen:
+
+	- `http://localhost:8088/install.php`
+
+4. Im Setup diese DB-Werte verwenden:
+
+	- Host: `db`
+	- Port: `3306`
+	- Datenbank: `klxm_installer_proxy`
+	- Benutzer: `klxm`
+	- Passwort: `klxm`
+
+5. Danach Login unter:
+
+	- `http://localhost:8088/index.php?route=login`
+
+### Wichtige Hinweise fuer Entwicklung
+
+- `config.php` wird absichtlich nicht versioniert.
+- Bei Docker-Entwicklung wird `config.php` durch den Setup-Prozess erzeugt.
+- Das Volume `db_data` speichert den MariaDB-Stand persistent.
+
+### Nützliche Kommandos
+
+```bash
+# Logs anzeigen
+docker compose logs -f
+
+# Container stoppen
+docker compose down
+
+# Container + DB-Volume entfernen (Reset)
+docker compose down -v
+```
+
 ## Zusammenspiel mit client_installer
 
 Der typische Ablauf ist:

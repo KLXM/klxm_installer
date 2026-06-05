@@ -1,0 +1,7 @@
+.git
+.gitignore
+storage/*
+!storage/.gitkeep
+config.php
+vendor/
+node_modules/
