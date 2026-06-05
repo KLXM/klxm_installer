@@ -11,5 +11,4 @@
         </label>
         <button type="submit" class="btn">Einloggen</button>
     </form>
-    <p class="hint">Passkey-Anmeldung ist vorbereitet und kann in der naechsten Ausbaustufe mit WebAuthn-Bibliothek aktiviert werden.</p>
 </section>

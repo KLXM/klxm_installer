@@ -122,7 +122,7 @@ final class App
             }
 
             $this->audit->log(null, 'login_failed', ['email' => $email]);
-            View::flash('error', 'Login fehlgeschlagen.');
+            View::flash('error', $this->auth->getLastError() ?? 'Login fehlgeschlagen.');
             Response::redirect('?route=login');
         }
 
