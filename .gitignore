@@ -1,0 +1,17 @@
+# Local runtime configuration
+config.php
+
+# Runtime/cache data
+storage/*
+!storage/.gitkeep
+
+# OS / editor files
+.DS_Store
+*.swp
+*.swo
+
+# Logs / temporary artifacts
+*.log
+
+# Note:
+# vendor/ is intentionally versioned in this project for distribution.
