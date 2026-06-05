@@ -39,12 +39,12 @@ final class SettingsService
         try {
             $this->ensureTable();
             $pdo = Database::pdo();
-            $stmt = $pdo->query("SELECT setting_key, setting_value FROM app_settings WHERE setting_key LIKE 'brand_%'");
+            $stmt = $pdo->query("SELECT setting_key, setting_value FROM app_settings WHERE setting_key LIKE 'brand_%' OR setting_key LIKE 'theme_%'");
             $rows = $stmt->fetchAll() ?: [];
             foreach ($rows as $row) {
                 $key = (string) ($row['setting_key'] ?? '');
                 $value = (string) ($row['setting_value'] ?? '');
-                if (array_key_exists($key, $defaults)) {
+                if (array_key_exists($key, $defaults) && $value !== '') {
                     $defaults[$key] = $value;
                 }
             }
@@ -90,7 +90,7 @@ final class SettingsService
 
         foreach ($allowed as $key) {
             $value = trim((string) ($input[$key] ?? ''));
-            if (str_ends_with($key, '_color') && $value !== '' && !preg_match('/^#[0-9A-Fa-f]{6}$/', $value)) {
+            if ((str_ends_with($key, '_color') || str_starts_with($key, 'theme_')) && $value !== '' && !preg_match('/^#[0-9A-Fa-f]{6}$/', $value)) {
                 throw new \RuntimeException('Farbwert fuer ' . $key . ' ist ungueltig. Bitte #RRGGBB verwenden.');
             }
             $stmt->execute([
